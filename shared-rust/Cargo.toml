@@ -3,5 +3,11 @@ name = "shared-assets"
 version = "2.1.1"
 edition = "2021"
 
+[features]
+default = ["frontend"]
+frontend = ["yew", "web-sys", "serde"]
+
 [dependencies]
-# No external dependencies to keep compile times fast and prevent version locking conflicts
+yew = { version = "0.23", features = ["csr"], optional = true }
+web-sys = { version = "=0.3.98", features = ["Window", "Document", "HtmlSelectElement", "Event"], optional = true }
+serde = { version = "1.0", features = ["derive"], optional = true }
