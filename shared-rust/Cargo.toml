@@ -1,0 +1,7 @@
+[package]
+name = "ubermetroid-shared"
+version = "2.0.0"
+edition = "2021"
+
+[dependencies]
+# No external dependencies to keep compile times fast and prevent version locking conflicts
