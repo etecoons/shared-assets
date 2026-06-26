@@ -58,6 +58,13 @@ body.layout-fit {
     overflow: hidden;
 }
 
+#app {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
 /* Standardized Content Container for scrollable layouts */
 .container {
     max-width: 800px;
