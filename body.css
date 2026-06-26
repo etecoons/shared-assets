@@ -103,3 +103,70 @@ body.layout-fit {
     box-sizing: border-box;
     overflow: hidden;
 }
+
+/* ==========================================
+   Standardized Toast & Notification System
+   ========================================== */
+
+.toast-container {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    left: auto;
+    transform: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    z-index: 9999;
+    width: 90%;
+    max-width: 320px;
+    pointer-events: none;
+}
+
+.toast {
+    pointer-events: auto;
+    color: #ffffff;
+    font-weight: 600;
+    padding: 0.85rem 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    opacity: 0;
+    transform: translateY(12px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    font-size: 0.9rem;
+    text-align: center;
+    cursor: pointer;
+    word-break: break-word;
+}
+
+/* For state-based show/hide active transition */
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* For animation-based alerts */
+.toast.animate-slide {
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.toast.success {
+    background-color: rgba(16, 185, 129, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.toast.error {
+    background-color: rgba(239, 68, 68, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
