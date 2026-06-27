@@ -86,10 +86,10 @@ pub fn lockout_remaining_secs(ip: &str, lockout_duration: std::time::Duration) -
 /// [`is_locked_out`]).
 #[must_use]
 pub fn current_attempts(ip: &str) -> u32 {
-    if let Ok(attempts) = login_attempts().lock() {
-        if let Some(attempt) = attempts.get(ip) {
-            return attempt.count;
-        }
+    if let Ok(attempts) = login_attempts().lock()
+        && let Some(attempt) = attempts.get(ip)
+    {
+        return attempt.count;
     }
     0
 }
@@ -108,11 +108,7 @@ pub fn attempts_left(ip: &str, max_attempts: u32, lockout_duration: std::time::D
         return 0;
     }
     let current = current_attempts(ip);
-    if current >= max_attempts {
-        0
-    } else {
-        max_attempts - current
-    }
+    max_attempts.saturating_sub(current)
 }
 
 #[cfg(test)]
