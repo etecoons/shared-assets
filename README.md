@@ -5,6 +5,37 @@ applications (`beam`, `grid`, `pad`, `todo`, `trace`).
 
 ---
 
+## Architecture
+
+```
+                        ┌──────────────────────────────────────┐
+                        │       shared-assets v3.0.0           │
+                        │     (this repository)               │
+                        └──────────────────────────────────────┘
+                                         ▲
+                ┌────────────────────────┴────────────────────────┐
+                │                                                  │
+       Frontend (Yew / WASM)                          Backend (axum)
+                │                                                  │
+        ┌───────┴────────┐                          ┌──────────────┴─────────────┐
+        │                │                          │                            │
+  components::      theme::Theme              server::ServerConfig        auth::pin_auth_layer
+  Header / Footer  i18n::Language            server::serve                middleware::cors_layer
+                    i18n::strings            server::ServerError          middleware::security_headers
+                                              server::ip                   middleware::title_injection
+                                              server::version              middleware::hsts
+                                              auth::attempts               security::print_unauthorized
+```
+
+**Frontend (gated by `frontend` feature, on by default):** Yew components,
+theme management, i18n. Built into the WASM bundle via Trunk.
+
+**Backend (always available):** Configuration parsing, server bootstrap,
+PIN authentication, shared middleware. Imported as a Cargo path / git
+dependency.
+
+---
+
 ## Repository Layout
 
 ```
