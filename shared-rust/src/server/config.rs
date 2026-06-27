@@ -61,7 +61,11 @@ impl ServerConfig {
 
         let pin = first_nonempty_env(&[&format!("{prefix}_PIN"), "PIN"]).and_then(|p| {
             let len = p.chars().count();
-            if (4..=64).contains(&len) { Some(p) } else { None }
+            if (4..=64).contains(&len) {
+                Some(p)
+            } else {
+                None
+            }
         });
 
         let trust_proxy = parse_bool_env("TRUST_PROXY");
@@ -104,7 +108,10 @@ fn parse_or<T>(name: &str, default: T) -> T
 where
     T: FromStr,
 {
-    env::var(name).ok().and_then(|v| v.parse().ok()).unwrap_or(default)
+    env::var(name)
+        .ok()
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(default)
 }
 
 /// Read a boolean env var. Truthy = `"true"` or `"on"`.

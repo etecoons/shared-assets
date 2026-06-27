@@ -30,11 +30,24 @@ fn with_env<F: FnOnce()>(vars: &[(&str, &str)], f: F) {
     let originals: Vec<(&str, Option<String>)> =
         vars.iter().map(|(k, _)| (*k, env::var(k).ok())).collect();
     let all_keys = [
-        "PORT", "SITE_TITLE", "BASE_URL", "ALLOWED_ORIGINS", "BEAM_PIN",
-        "BEAM_SITE_TITLE", "BEAM_TITLE", "PIN", "ENABLE_TRANSLATION",
-        "ENABLE_THEMES", "ENABLE_PRINT", "SHOW_VERSION", "SHOW_GITHUB",
-        "MAX_ATTEMPTS", "LOCKOUT_TIME_MINUTES", "COOKIE_MAX_AGE_HOURS",
-        "TRUST_PROXY", "TRUSTED_PROXY_IPS",
+        "PORT",
+        "SITE_TITLE",
+        "BASE_URL",
+        "ALLOWED_ORIGINS",
+        "BEAM_PIN",
+        "BEAM_SITE_TITLE",
+        "BEAM_TITLE",
+        "PIN",
+        "ENABLE_TRANSLATION",
+        "ENABLE_THEMES",
+        "ENABLE_PRINT",
+        "SHOW_VERSION",
+        "SHOW_GITHUB",
+        "MAX_ATTEMPTS",
+        "LOCKOUT_TIME_MINUTES",
+        "COOKIE_MAX_AGE_HOURS",
+        "TRUST_PROXY",
+        "TRUSTED_PROXY_IPS",
     ];
     let originals_all: Vec<(&str, Option<String>)> = all_keys
         .iter()
@@ -82,10 +95,21 @@ fn minimal_config() -> ServerConfig {
 fn defaults_when_no_env_set() {
     with_clean_env(
         &[
-            "PORT", "SITE_TITLE", "BASE_URL", "ALLOWED_ORIGINS", "BEAM_PIN",
-            "ENABLE_TRANSLATION", "ENABLE_THEMES", "ENABLE_PRINT",
-            "MAX_ATTEMPTS", "LOCKOUT_TIME_MINUTES", "COOKIE_MAX_AGE_HOURS",
-            "TRUST_PROXY", "TRUSTED_PROXY_IPS", "BEAM_SITE_TITLE", "BEAM_TITLE",
+            "PORT",
+            "SITE_TITLE",
+            "BASE_URL",
+            "ALLOWED_ORIGINS",
+            "BEAM_PIN",
+            "ENABLE_TRANSLATION",
+            "ENABLE_THEMES",
+            "ENABLE_PRINT",
+            "MAX_ATTEMPTS",
+            "LOCKOUT_TIME_MINUTES",
+            "COOKIE_MAX_AGE_HOURS",
+            "TRUST_PROXY",
+            "TRUSTED_PROXY_IPS",
+            "BEAM_SITE_TITLE",
+            "BEAM_TITLE",
         ],
         || {
             let cfg = ServerConfig::from_env("BEAM");
@@ -109,7 +133,13 @@ fn defaults_when_no_env_set() {
 #[test]
 fn pin_prefix_lookup_order() {
     with_clean_env(
-        &["PIN", "BEAM_PIN", "SITE_TITLE", "BEAM_SITE_TITLE", "BEAM_TITLE"],
+        &[
+            "PIN",
+            "BEAM_PIN",
+            "SITE_TITLE",
+            "BEAM_SITE_TITLE",
+            "BEAM_TITLE",
+        ],
         || {
             unsafe { env::set_var("PIN", "12345678") };
             assert_eq!(

@@ -8,7 +8,7 @@
 //! - Issues a session cookie on successful auth
 
 use super::attempts;
-use crate::server::{get_client_ip, ServerConfig};
+use crate::server::{ServerConfig, get_client_ip};
 use axum::extract::{ConnectInfo, Request, State};
 use axum::http::header::COOKIE;
 use axum::middleware::Next;
@@ -87,10 +87,7 @@ pub async fn pin_auth_layer(
 
 /// Extract a PIN from either the `X-PIN` header or a `pin=...` cookie.
 fn extract_pin(request: &Request) -> Option<String> {
-    if let Some(p) = request
-        .headers()
-        .get("x-pin")
-        .and_then(|h| h.to_str().ok())
+    if let Some(p) = request.headers().get("x-pin").and_then(|h| h.to_str().ok())
         && !p.is_empty()
     {
         return Some(p.to_string());

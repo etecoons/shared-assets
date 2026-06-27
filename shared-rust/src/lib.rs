@@ -50,4 +50,4 @@ pub mod theme;
 
 // Re-exports for ergonomics.
 #[cfg(feature = "frontend")]
-pub use components::{footer::Footer, header::Header};
+pub use components::{footer, footer::Footer, header, header::Header};

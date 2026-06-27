@@ -9,7 +9,13 @@ use yew::prelude::*;
 #[derive(Properties, PartialEq)]
 pub struct HeaderProps {
     pub site_title: String,
-    pub theme: Theme,
+    /// Theme name (e.g. `"crateria"`, `"brinstar"`). Accepted as `String`
+    /// (or anything that converts to one) so call sites can pass either
+    /// a stored string from a cookie/localStorage or a `Theme` enum
+    /// directly. We parse it into the `Theme` enum inside the
+    /// component; an unrecognised name falls back to `Theme::default()`.
+    #[prop_or_default]
+    pub theme: String,
     pub language: Language,
     pub toggle_theme: Callback<MouseEvent>,
     pub on_language_change: Callback<Language>,
@@ -76,6 +82,11 @@ pub fn header(props: &HeaderProps) -> Html {
         props.on_print.clone()
     };
 
+    // Parse the theme name into the `Theme` enum. Accept either the
+    // kebab-case CSS names ("wrecked_ship") or any other value the
+    // user stored in localStorage; unknown values fall back to default.
+    let theme = Theme::from_name(&props.theme).unwrap_or_default();
+
     html! {
         <header>
             <div id="header-title">
@@ -84,7 +95,7 @@ pub fn header(props: &HeaderProps) -> Html {
 
             <div class="header-right">
                 {language_picker(props.enable_translation, props.language, on_change_lang)}
-                {theme_toggle(props.enable_themes, props.toggle_theme.clone(), props.theme, theme_tooltip)}
+                {theme_toggle(props.enable_themes, props.toggle_theme.clone(), theme, theme_tooltip)}
                 {print_button(props.enable_print, props.disable_print, on_print, print_tooltip)}
                 {logout_button(props.pin_required, disabled, onclick_logout, logout_tooltip)}
             </div>
