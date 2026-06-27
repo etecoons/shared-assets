@@ -5,7 +5,6 @@
 //! races `env::set_var` across tests. The `ENV_LOCK` mutex serializes them.
 
 use super::*;
-use serial_test::serial;
 use std::env;
 use std::sync::Mutex;
 
