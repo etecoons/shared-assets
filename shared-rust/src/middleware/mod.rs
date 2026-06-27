@@ -9,6 +9,6 @@ pub mod security_headers;
 pub mod title;
 
 pub use cors::cors_layer;
-pub use hsts::hsts_layer;
+pub use hsts::{HstsState, hsts_layer};
 pub use security_headers::security_headers_layer;
-pub use title::title_injection_layer;
+pub use title::{TitleState, title_injection_layer};
