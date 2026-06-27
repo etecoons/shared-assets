@@ -1,30 +1,43 @@
-#[cfg(feature = "frontend")]
+//! Shared code for UberMetroid companion apps.
+//!
+//! Provides Yew components (frontend), i18n, theme management,
+//! and backend security helpers consumed via a Cargo path/git dependency.
+//!
+//! ## Public API
+//!
+//! ### Frontend (gated by `frontend` feature, enabled by default)
+//!
+//! - [`components::Header`], [`components::Footer`] — shared UI chrome
+//! - [`theme::Theme`] — Super Metroid theme enum
+//! - [`i18n::Language`] — supported interface languages
+//! - [`i18n::strings`] — centralized UI string lookup
+//!
+//! ### Backend (always available)
+//!
+//! - [`security::print_unauthorized_console_message`] — anti-shell alert
+//!
+//! ## Example
+//!
+//! ```rust,no_run
+//! use shared_assets::security;
+//!
+//! // Used in custom `sh` binary stubs to block shell access inside Nix
+//! // containers while still emitting a friendly message.
+//! security::print_unauthorized_console_message();
+//! ```
+
 pub mod i18n;
+pub mod security;
 
 #[cfg(feature = "frontend")]
-pub mod header;
+pub mod components;
 
 #[cfg(feature = "frontend")]
-pub mod footer;
+pub mod theme;
 
-pub fn print_unauthorized_console_message() {
-    // Clear screen
-    print!("\x1B[2J\x1B[1;1H");
-
-    println!(
-        r#" _______________________________________
-/ I'm sorry, Dave. I'm afraid Nix won't \
-\ let me do that.                       /
- ---------------------------------------
-        \   ^__^
-         \  (oo)\_______
-            (__)\       )\/\
-                ||----w |
-                ||     ||"#
-    );
-
-    println!("\x1B[1;31m\nSystem Alert: Console Access is UNAUTHORIZED.\x1B[0m");
-    println!("This application is running inside a secure, read-only Nix container.");
-    println!("Direct shell access is disabled for environment isolation and security.");
-    println!("\nPress \x1B[1;37m[Enter]\x1B[0m to close connection...");
-}
+// Re-exports for ergonomics.
+//
+// `shared_assets::Header` is more discoverable than
+// `shared_assets::components::header::Header`.
+#[cfg(feature = "frontend")]
+pub use components::{footer::Footer, header::Header};

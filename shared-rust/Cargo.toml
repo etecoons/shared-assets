@@ -2,12 +2,25 @@
 name = "shared-assets"
 version = "2.1.1"
 edition = "2021"
+description = "Shared UI components, theme management, and backend helpers for UberMetroid companion apps."
+license = "Apache-2.0"
+repository = "https://github.com/UberMetroid/shared-assets"
+readme = "README.md"
 
 [features]
 default = ["frontend"]
-frontend = ["yew", "web-sys", "serde"]
+# Pulls in Yew + web-sys + serde for Yew components. Disable for
+# backend-only consumers (currently only the `sh` binary stub) to avoid
+# the wasm32 stack.
+frontend = ["dep:yew", "dep:web-sys", "dep:serde"]
 
 [dependencies]
-yew = { version = "0.23", features = ["csr"], optional = true }
-web-sys = { version = "=0.3.98", features = ["Window", "Document", "HtmlSelectElement", "Event"], optional = true }
 serde = { version = "1.0", features = ["derive"], optional = true }
+# `^` allows patch updates; an exact pin here caused conflicts in consumer
+# crates. `>=0.3.98` keeps the HtmlSelectElement API we depend on.
+web-sys = { version = ">=0.3.98, <0.4", features = ["Window", "Document", "HtmlSelectElement", "Event"], optional = true }
+yew = { version = "0.23", features = ["csr"], optional = true }
+
+[dev-dependencies]
+# Reserved for future integration tests (e.g. snapshot tests of rendered
+# Yew components). Currently all tests are inline `#[cfg(test)] mod tests`.
