@@ -31,6 +31,8 @@ pub struct HeaderProps {
 
     pub enable_translation: bool,
     pub enable_themes: bool,
+    #[prop_or(true)]
+    pub enable_print: bool,
     pub print_disabled: bool,
 }
 
@@ -90,7 +92,7 @@ pub fn header(props: &HeaderProps) -> Html {
             <div class="header-right">
                 {language_picker(props.enable_translation, props.language, on_change_lang)}
                 {theme_toggle(props.enable_themes, props.toggle_theme.clone(), theme, theme_tooltip)}
-                {print_button(props.print_disabled, on_print, print_tooltip)}
+                {print_button(props.enable_print, props.print_disabled, on_print, print_tooltip)}
                 {logout_button(props.pin_required, disabled, onclick_logout, logout_tooltip)}
             </div>
         </header>
@@ -151,7 +153,15 @@ fn theme_toggle(
     }
 }
 
-fn print_button(disabled: bool, on_click: Callback<MouseEvent>, tooltip: String) -> Html {
+fn print_button(
+    enabled: bool,
+    disabled: bool,
+    on_click: Callback<MouseEvent>,
+    tooltip: String,
+) -> Html {
+    if !enabled {
+        return html! {};
+    }
     html! {
         <button id="print-button" class="icon-button"
                 onclick={on_click}
