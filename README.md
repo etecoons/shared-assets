@@ -1,6 +1,6 @@
 # UberMetroid Shared Assets
 
-**v3.0.0 — Shared styles, Rust components, and backend helpers for the
+**v3.0.1 — Shared styles, Rust components, and backend helpers for the
 UberMetroid companion applications (`beam`, `grid`, `pad`, `todo`, `trace`).**
 
 ---
@@ -15,33 +15,38 @@ Cargo workspace (`shared-core`, `shared-backend`, `shared-frontend`) so each
 consumer can depend on exactly the slice it needs without pulling in the
 other half of the stack.
 
+v3.0.1 adds a `shared-core::types` module with the on-the-wire data types
+that both the Yew frontend and the axum backend need to agree on (todo
+items, site config, PIN auth request/response shapes, etc.).
+
 ---
 
 ## Architecture
 
 ```
-                         ┌──────────────────────────────────────┐
-                         │       shared-assets v3.0.0           │
-                         │     (this repository)                │
-                         └──────────────────────────────────────┘
-                                          ▲
-                 ┌────────────────────────┼────────────────────────┐
-                 │                        │                        │
-       shared-core (types)      shared-backend (axum)     shared-frontend (Yew)
-                 │                        │                        │
-            i18n::Language       server::ServerConfig    components::Header
-            i18n::strings        server::serve            components::Footer
-                                 auth::pin_auth_layer     theme::Theme
-                                 middleware::cors        theme::mapping
-                                 middleware::security_headers
-                                 security::print_unauthorized
-                                          ▲
-                                          │
-                                   styles/  (CSS, consumed by Trunk)
+                          ┌──────────────────────────────────────┐
+                          │       shared-assets v3.0.1           │
+                          │     (this repository)                │
+                          └──────────────────────────────────────┘
+                                           ▲
+                  ┌────────────────────────┼────────────────────────┐
+                  │                        │                        │
+   shared-core (types+i18n)    shared-backend (axum)   shared-frontend (Yew)
+                  │                        │                        │
+             types::TodoItem       server::ServerConfig    components::Header
+             types::SiteConfig     server::serve            components::Footer
+             i18n::Language        auth::pin_auth_layer     theme::Theme
+             i18n::strings         middleware::cors        theme::mapping
+                                  middleware::security_headers
+                                  security::print_unauthorized
+                                           ▲
+                                           │
+                                    styles/  (CSS, consumed by Trunk)
 ```
 
-* **`shared-core`** — platform-agnostic primitives (i18n enums and string
-  lookup). No runtime dependencies on a web framework.
+* **`shared-core`** — platform-agnostic primitives: wire-format data types
+  (`types::*`) and i18n enums/string lookup (`i18n::*`). No runtime
+  dependencies on a web framework.
 * **`shared-backend`** — axum server primitives: configuration, bootstrap,
   PIN auth, shared middleware. Depends on `shared-core`.
 * **`shared-frontend`** — Yew 0.23 components, theme management, and browser
@@ -72,10 +77,12 @@ shared-assets/
     ├── deny.toml                        Supply-chain license policy
     ├── shared-core/                     Platform-agnostic primitives
     │   └── src/
-    │       ├── lib.rs                   Crate root
-    │       └── i18n/                    Internationalization
-    │           ├── mod.rs               Language enum (en/zh/es/de/ja/fr/pt/ru)
-    │           └── strings.rs           Centralized UI string lookup
+    │       ├── lib.rs                   Crate root (pub mod i18n, types)
+    │       ├── i18n/                    Internationalization
+    │       │   ├── mod.rs               Language enum (en/zh/es/de/ja/fr/pt/ru)
+    │       │   └── strings.rs           Centralized UI string lookup
+    │       └── types.rs                 Wire-format data types (TodoItem, SiteConfig,
+    │                                    PinRequiredResponse, VerifyPinRequest/Response)
     ├── shared-backend/                  Server-side and backend helpers
     │   └── src/
     │       ├── lib.rs                   Crate root
@@ -119,6 +126,7 @@ shared-assets/
 | Crate                 | Module(s)         | What it exposes                                                                     |
 | :-------------------- | :---------------- | :---------------------------------------------------------------------------------- |
 | **`shared-core`**     | `i18n`            | `Language` enum + `i18n::strings::lookup` central UI-string translator              |
+| **`shared-core`**     | `types`           | `TodoItem`, `TodoLists`, `SiteConfig`, `PinRequiredResponse`, `VerifyPinRequest`, `VerifyPinResponse` — wire-format / on-disk data types |
 | **`shared-backend`**  | `auth`            | `pin_auth_layer`, `auth::attempts::*`, `auth::session::issue_cookie`                |
 | **`shared-backend`**  | `server`          | `ServerConfig`, `serve`, `ServerError`, `server::ip::get_client_ip`, `version`      |
 | **`shared-backend`**  | `middleware`      | `cors_layer`, `security_headers_layer`, `title_injection_layer`, `hsts_layer`       |
@@ -169,11 +177,23 @@ shared-backend = { path = "Assets/shared-assets/shared-rust/shared-backend" }
 
 # Frontend (Cargo.toml)
 shared-frontend = { path = "Assets/shared-assets/shared-rust/shared-frontend" }
+shared-core     = { path = "Assets/shared-assets/shared-rust/shared-core" }  # for wire types
 ```
 
-`shared-core` is pulled in transitively by the other two, so a consumer
-only needs to declare it explicitly when it consumes core types directly
-(for example, `Language` in the backend's session code).
+`shared-core` is pulled in transitively by both `shared-backend` and
+`shared-frontend`, so a consumer doesn't strictly need to declare it
+explicitly — but doing so is recommended when the consumer imports from
+`shared_core::types` or `shared_core::i18n` directly (for example, the
+Yew frontend deserializing a `SiteConfig` response, or the axum backend
+returning a `VerifyPinResponse`).
+
+For the git-dep form (recommended for tagged releases):
+
+```toml
+shared-core    = { git = "https://github.com/UberMetroid/shared-assets", tag = "v3.0.0" }
+shared-backend = { git = "https://github.com/UberMetroid/shared-assets", tag = "v3.0.0" }
+shared-frontend = { git = "https://github.com/UberMetroid/shared-assets", tag = "v3.0.0" }
+```
 
 ---
 
@@ -257,6 +277,17 @@ use shared_frontend::theme::Theme;
 Theme::Brinstar.name()  // returns "brinstar" for CSS / localStorage
 ```
 
+#### Example: Adding a New Wire Type
+
+Add a struct to `shared_core::types`. Because both the Yew frontend and the
+axum backend must serialize/deserialize it identically, keep the type
+derive-heavy (`Serialize`, `Deserialize`, `Clone`, `Debug`) and follow the
+existing camelCase JSON convention with `#[serde(rename_all = "camelCase")]`
+on structs that are returned from API handlers. The 6 types currently
+shipped (`TodoItem`, `TodoLists`, `SiteConfig`, `PinRequiredResponse`,
+`VerifyPinRequest`, `VerifyPinResponse`) double as the JSON contract for
+the v3 API; do not break their field names without a major version bump.
+
 ---
 
 ## Development
@@ -272,7 +303,7 @@ cargo fmt --check
 # Lints (moderate strictness — see clippy.toml)
 cargo clippy --workspace --all-targets
 
-# Tests across the workspace (68 unit tests across the 3 crates)
+# Tests across the workspace (72 unit tests across the 3 crates)
 cargo test --workspace
 
 # Frontend WASM build (requires the wasm32-unknown-unknown target)
