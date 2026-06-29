@@ -1,4 +1,5 @@
 pub mod auth;
+pub mod database;
 pub mod middleware;
 pub mod security;
 pub mod server;
