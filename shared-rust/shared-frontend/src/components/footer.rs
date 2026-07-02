@@ -5,13 +5,13 @@ use crate::i18n::strings::{StringKey, lookup};
 use yew::prelude::*;
 
 /// Props for [`Footer`].
-#[derive(Properties, PartialEq)]
+#[derive(Properties, PartialEq, Clone)]
 pub struct FooterProps {
     #[prop_or_default]
     pub show_version: bool,
     #[prop_or_default]
     pub version: String,
-    #[prop_or_default]
+    #[prop_or(true)]
     pub show_github: bool,
     #[prop_or_default]
     pub github_url: Option<String>,
@@ -19,6 +19,8 @@ pub struct FooterProps {
     #[prop_or_default]
     pub version_url: Option<String>,
 
+    #[prop_or(true)]
+    pub show_coffee: bool,
     #[prop_or_default]
     pub coffee_url: Option<String>,
 
@@ -33,6 +35,11 @@ pub fn footer(props: &FooterProps) -> Html {
         .github_url
         .clone()
         .unwrap_or_else(|| "https://github.com/UberMetroid".to_string());
+
+    let coffee_link = props
+        .coffee_url
+        .clone()
+        .unwrap_or_else(|| "https://buymeacoffee.com/ubermetroid".to_string());
 
     let aria_github = lookup(StringKey::AriaGitHubProfile, Language::English);
 
@@ -68,10 +75,10 @@ pub fn footer(props: &FooterProps) -> Html {
             </div>
 
             <div class="footer-right">
-                {if let Some(ref url) = props.coffee_url {
+                {if props.show_coffee {
                     html! {
                         <a class="footer-coffee-link"
-                           href={url.clone()}
+                           href={coffee_link}
                            target="_blank"
                            rel="noopener noreferrer"
                            title="Buy Me a Coffee">

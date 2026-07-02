@@ -29,7 +29,9 @@ pub struct HeaderProps {
     pub print_tooltip: String,
     pub on_print: Option<Callback<MouseEvent>>,
 
+    #[prop_or(true)]
     pub enable_translation: bool,
+    #[prop_or(true)]
     pub enable_themes: bool,
     #[prop_or(true)]
     pub enable_print: bool,
@@ -90,27 +92,28 @@ pub fn header(props: &HeaderProps) -> Html {
     // user stored in localStorage; unknown values fall back to default.
     let theme = Theme::from_name(&props.theme).unwrap_or_default();
 
-    let title_html = match &props.site_url {
-        Some(url) => html! {
-            <a class="header-title-link" href={url.clone()} target="_blank" rel="noopener noreferrer">
-                <h1>{&props.site_title}</h1>
-            </a>
-        },
-        None => html! {
+    let site_url = props.site_url.clone().unwrap_or_else(|| {
+        format!("https://github.com/UberMetroid/{}", props.site_title.to_lowercase())
+    });
+
+    let title_html = html! {
+        <a class="header-title-link" href={site_url} target="_blank" rel="noopener noreferrer">
             <h1>{&props.site_title}</h1>
-        },
+        </a>
     };
 
-    let version_html = match (&props.version, &props.version_url) {
-        (Some(ver), Some(url)) => html! {
-            <a class="header-version-link" href={url.clone()} target="_blank" rel="noopener noreferrer">
-                <span class="header-version">{format!("v{}", ver)}</span>
-            </a>
-        },
-        (Some(ver), None) => html! {
-            <span class="header-version">{format!("v{}", ver)}</span>
-        },
-        _ => html! {},
+    let version_html = match &props.version {
+        Some(ver) => {
+            let version_url = props.version_url.clone().unwrap_or_else(|| {
+                format!("https://github.com/UberMetroid/{}/releases/tag/v{}", props.site_title.to_lowercase(), ver)
+            });
+            html! {
+                <a class="header-version-link" href={version_url} target="_blank" rel="noopener noreferrer">
+                    <span class="header-version">{format!("v{}", ver)}</span>
+                </a>
+            }
+        }
+        None => html! {},
     };
 
     html! {
