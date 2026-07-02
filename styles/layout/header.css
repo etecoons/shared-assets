@@ -145,9 +145,10 @@ header {
 .language-select:hover {
     background-color: var(--button-hover);
     border-color: var(--primary);
+    color: var(--primary);
 }
 
-#theme-toggle:hover svg {
+.icon-button:hover svg {
     stroke: var(--primary);
 }
 
