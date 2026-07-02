@@ -99,6 +99,42 @@ pub fn header(props: &HeaderProps) -> Html {
     // user stored in localStorage; unknown values fall back to default.
     let theme = Theme::from_name(&props.theme).unwrap_or_default();
 
+    // Register global keyboard listener to cycle themes on "t" keypress
+    {
+        let toggle_theme = props.toggle_theme.clone();
+        let enable_themes = props.enable_themes;
+        use_effect_with((), move |_| {
+            if !enable_themes {
+                return Box::new(|| ()) as Box<dyn FnOnce()>;
+            }
+            use wasm_bindgen::JsCast;
+            let window = web_sys::window().unwrap();
+            let toggle_theme = toggle_theme.clone();
+            let listener = crate::utils::EventListener::new(&window, "keydown", move |e: web_sys::Event| {
+                let key_event = e.dyn_ref::<web_sys::KeyboardEvent>().unwrap();
+                let key = key_event.key();
+
+                // Skip if focus is on form input/textarea/select elements to not disrupt typing
+                if let Some(target) = e.target() {
+                    if let Ok(elem) = target.dyn_into::<web_sys::Element>() {
+                        let tag_name = elem.tag_name().to_lowercase();
+                        if tag_name == "input" || tag_name == "textarea" || tag_name == "select" {
+                            return;
+                        }
+                    }
+                }
+
+                if key == "t" || key == "T" {
+                    // Create a mock MouseEvent to invoke the callback
+                    if let Ok(dummy_event) = web_sys::MouseEvent::new("click") {
+                        toggle_theme.emit(dummy_event);
+                    }
+                }
+            });
+            Box::new(move || drop(listener)) as Box<dyn FnOnce()>
+        });
+    }
+
     let site_url = props.site_url.clone().unwrap_or_else(|| {
         format!("https://github.com/UberMetroid/{}", props.site_title.to_lowercase())
     });
