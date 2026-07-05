@@ -1,6 +1,6 @@
 # UberMetroid Shared Assets <img src="assets/icon.svg" width="48" height="48" alt="shared-assets logo" align="right">
 
-**v3.0.1 — Shared styles, Rust components, and backend helpers for the
+**v3.0.18 — Shared styles, Rust components, and backend helpers for the
 UberMetroid companion applications (`beam`, `grid`, `pad`, `todo`, `trace`).**
 
 ---
@@ -15,7 +15,7 @@ Cargo workspace (`shared-core`, `shared-backend`, `shared-frontend`) so each
 consumer can depend on exactly the slice it needs without pulling in the
 other half of the stack.
 
-v3.0.1 adds a `shared-core::types` module with the on-the-wire data types
+v3.0.18 adds a `shared-core::types` module with the on-the-wire data types
 that both the Yew frontend and the axum backend need to agree on (todo
 items, site config, PIN auth request/response shapes, etc.).
 
@@ -25,7 +25,7 @@ items, site config, PIN auth request/response shapes, etc.).
 
 ```
                           ┌──────────────────────────────────────┐
-                          │       shared-assets v3.0.1           │
+                          │       shared-assets v3.0.18          │
                           │     (this repository)                │
                           └──────────────────────────────────────┘
                                            ▲
@@ -190,9 +190,9 @@ returning a `VerifyPinResponse`).
 For the git-dep form (recommended for tagged releases):
 
 ```toml
-shared-core    = { git = "https://github.com/UberMetroid/shared-assets", tag = "v3.0.0" }
-shared-backend = { git = "https://github.com/UberMetroid/shared-assets", tag = "v3.0.0" }
-shared-frontend = { git = "https://github.com/UberMetroid/shared-assets", tag = "v3.0.0" }
+shared-core    = { git = "https://github.com/UberMetroid/shared-assets", tag = "v3.0.18" }
+shared-backend = { git = "https://github.com/UberMetroid/shared-assets", tag = "v3.0.18" }
+shared-frontend = { git = "https://github.com/UberMetroid/shared-assets", tag = "v3.0.18" }
 ```
 
 ---
@@ -316,7 +316,7 @@ The workspace is pinned via `rust-toolchain.toml` (Rust 1.96.0).
 
 ## Coding Standards
 
-* Files limited to **250 lines** (enforced by CI).
+* Files limited to **250 lines** (enforced locally).
 * **100-column** line width (`rustfmt.toml`).
 * Rust **edition 2024** across every member crate.
 * All public API documented with `///` doc comments.
