@@ -1,7 +1,7 @@
-# UberMetroid Shared Assets <img src="assets/icon.svg" width="48" height="48" alt="shared-assets logo" align="right">
+# etecoons Shared Assets <img src="assets/icon.svg" width="48" height="48" alt="shared-assets logo" align="right">
 
 **v3.0.18 — Shared styles, Rust components, and backend helpers for the
-UberMetroid companion applications (`beam`, `grid`, `pad`, `todo`, `trace`).**
+etecoons companion applications (`beam`, `grid`, `pad`, `todo`, `trace`).**
 
 ---
 
@@ -190,9 +190,9 @@ returning a `VerifyPinResponse`).
 For the git-dep form (recommended for tagged releases):
 
 ```toml
-shared-core    = { git = "https://github.com/UberMetroid/shared-assets", tag = "v3.0.18" }
-shared-backend = { git = "https://github.com/UberMetroid/shared-assets", tag = "v3.0.18" }
-shared-frontend = { git = "https://github.com/UberMetroid/shared-assets", tag = "v3.0.18" }
+shared-core    = { git = "https://github.com/etecoons/shared-assets", tag = "v3.0.18" }
+shared-backend = { git = "https://github.com/etecoons/shared-assets", tag = "v3.0.18" }
+shared-frontend = { git = "https://github.com/etecoons/shared-assets", tag = "v3.0.18" }
 ```
 
 ---
@@ -331,4 +331,4 @@ The workspace is pinned via `rust-toolchain.toml` (Rust 1.96.0).
 ## License
 
 Licensed under the [Apache License, Version 2.0](LICENSE). Copyright 2026
-UberMetroid.
+etecoons.
