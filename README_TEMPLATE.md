@@ -6,7 +6,7 @@
 
 ---
 
-## 🏛️ Architecture & Stack
+## Architecture & Stack
 *   **Frontend**: [e.g., Yew (WASM) / None]
 *   **Backend**: [e.g., Axum (Rust) / None]
 *   **Deployment**: [e.g., UBI-built Container / Unraid native / None]
@@ -15,14 +15,14 @@
 
 ---
 
-## 🟢 Key Features
+## Key Features
 *   [Feature 1]
 *   [Feature 2]
 *   [Feature 3]
 
 ---
 
-## 💾 Deployment & Installation
+## Deployment & Installation
 
 ### Docker Compose (If applicable)
 ```yaml
@@ -36,7 +36,7 @@
 
 ---
 
-## ⚙️ Configuration Options
+## Configuration Options
 
 | Environment Variable | Description | Default |
 | :--- | :--- | :--- |
@@ -44,7 +44,7 @@
 
 ---
 
-## 🛠️ Local Development
+## Local Development
 ```bash
 # Standard commands to verify, test, and run locally
 just verify
@@ -53,5 +53,5 @@ cargo test
 
 ---
 
-## 📄 License
+## License
 Licensed under the [Apache License, Version 2.0](LICENSE). Copyright 2026 etecoons.
