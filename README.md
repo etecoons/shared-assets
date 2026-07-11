@@ -7,7 +7,7 @@ etecoons companion applications (`beam`, `grid`, `pad`, `todo`, `trace`).**
 
 ## Overview
 
-This repository collects everything that is reused across every UberMetroid
+This repository collects everything that is reused across every etecoons
 companion app: the shared CSS themes and layouts, the browser-side Yew UI
 chrome, and the server-side axum middleware, configuration parsing, and PIN
 authentication. Starting with v3.0.0 the Rust side is split into a 3-crate

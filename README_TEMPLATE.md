@@ -1,6 +1,6 @@
 # [Project Name] — [Single-sentence Tagline] <img src="[Icon Path]" width="48" height="48" alt="logo" align="right">
 
-[Badges: Version | License | Nix Build | Docker Pulls]
+[Badges: Version | License | UBI Build | Docker Pulls]
 
 [Concise introductory paragraph defining the purpose, tech stack, and primary environment target]
 
@@ -9,7 +9,7 @@
 ## 🏛️ Architecture & Stack
 *   **Frontend**: [e.g., Yew (WASM) / None]
 *   **Backend**: [e.g., Axum (Rust) / None]
-*   **Deployment**: [e.g., Nix-built Container / Unraid native / None]
+*   **Deployment**: [e.g., UBI-built Container / Unraid native / None]
 
 [Optional Mermaid diagram or ASCII diagram illustrating data/module flow]
 
@@ -29,9 +29,9 @@
 # Standard docker-compose block
 ```
 
-### Unraid / Nix Installation (If applicable)
+### Unraid / UBI Installation (If applicable)
 ```bash
-# Nix run or install command
+# UBI run or install command
 ```
 
 ---
