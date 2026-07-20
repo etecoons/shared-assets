@@ -150,23 +150,7 @@ pub fn header(props: &HeaderProps) -> Html {
         </a>
     };
 
-    let version_html = match &props.version {
-        Some(ver) => {
-            let version_url = props.version_url.clone().unwrap_or_else(|| {
-                format!(
-                    "https://github.com/UberMetroid/{}/releases/tag/v{}",
-                    props.site_title.to_lowercase(),
-                    ver
-                )
-            });
-            html! {
-                <a class="header-version-link" href={version_url} target="_blank" rel="noopener noreferrer">
-                    <span class="header-version">{format!("v{}", ver)}</span>
-                </a>
-            }
-        }
-        None => html! {},
-    };
+    let version_html = html! {};
 
     html! {
         <header>
