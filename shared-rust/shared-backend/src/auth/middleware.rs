@@ -99,6 +99,7 @@ fn extract_pin(request: &Request) -> Option<String> {
 fn unauthorized_response() -> Response {
     axum::http::Response::builder()
         .status(axum::http::StatusCode::UNAUTHORIZED)
+        .header("WWW-Authenticate", "Basic realm=\"PIN required\"")
         .header("content-type", "text/plain")
         .body(axum::body::Body::from("unauthorized"))
         .unwrap()
