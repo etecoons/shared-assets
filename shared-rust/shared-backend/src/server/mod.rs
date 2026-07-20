@@ -13,6 +13,7 @@ pub mod config;
 pub mod error;
 pub mod ip;
 pub mod version;
+pub mod helpers;
 
 #[cfg(test)]
 mod tests;
@@ -22,3 +23,4 @@ pub use config::ServerConfig;
 pub use error::ServerError;
 pub use ip::{get_client_ip, normalize_ip};
 pub use version::CARGO_PKG_VERSION;
+pub use helpers::{is_loopback_bind, redacted_url, LogEntry, MemoryEventLogger};
