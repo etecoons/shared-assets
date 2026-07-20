@@ -1,9 +1,3 @@
-<p align="center">
-  <a href="https://github.com/studio2201">
-    <img src="assets/header.jpg" alt="studio2201 banner" width="100%">
-  </a>
-</p>
-
 # studio2201 Shared Assets <img src="assets/icon.svg" width="48" height="48" alt="shared-assets logo" align="right">
 
 **v3.0.31 — Shared styles, Rust components, and backend helpers for the
