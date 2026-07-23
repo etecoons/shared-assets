@@ -3,7 +3,29 @@
 All notable changes to `shared-assets` will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [3.0.39] - 2026-07-23
+
+### Removed
+- **`session_id::generate_session_id`** — moved to per-app
+  `backend/src/session_id.rs`. Each app now uses `getrandom` directly,
+  so a bug in the session-id path compromises only that app. The shared
+  impl had 2 unit tests; the per-app impl preserves them.
+- **`cookie_auth::{build_cookie, build_clear_cookie, cookie_should_be_secure}`** —
+  moved to per-app `backend/src/cookie_auth.rs`. Each app's cookie
+  name is now baked into the local module (e.g. `BEAM_PIN`,
+  `DEFEND_PIN`, `TODO_PIN`, `TRACE_PIN`); apps no longer share a
+  generic `build_cookie(name, value, ...)` API. The shared impl had
+  8 unit tests; the per-app impl preserves them.
+
+### Why
+- A bug in shared `session_id` (e.g. an OsRng fallback that returns
+  all zeros under some edge case) would have compromised every app at
+  once. Per-app code limits blast radius.
+- Each app tunes its own cookie semantics (clamp range, cookie name,
+  SameSite policy); the shared signature was a leaky abstraction.
+
+## [3.0.38] - 2026-07-23and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] - 2026-07-23
 
