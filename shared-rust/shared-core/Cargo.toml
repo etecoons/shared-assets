@@ -1,19 +1,24 @@
 [package]
 name = "shared-core"
-version = "3.0.33"
-edition = "2024"
 description = "Core platform-agnostic types and primitives for studio2201 shared assets."
-license = "Apache-2.0"
-repository = "https://github.com/studio2201/shared-assets"
-homepage = "https://github.com/studio2201/shared-assets"
-documentation = "https://github.com/studio2201/shared-assets"
 readme = "../../README.md"
 keywords = ["yew", "wasm", "axum", "i18n", "themes"]
 categories = ["web-programming", "internationalization", "api-bindings"]
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[features]
+default = []
+# Reserved for future use; current core is feature-free.
 
 [dependencies]
-serde = { version = "1.0", features = ["derive"] }
-constant_time_eq = "0.3"
+serde = { workspace = true }
+constant_time_eq = { workspace = true }
 
 [dev-dependencies]
-serde_json = "1.0"
+serde_json = { workspace = true }

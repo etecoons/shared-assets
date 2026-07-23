@@ -31,17 +31,17 @@ pub struct FooterProps {
 /// Bottom-of-page footer shared by all companion apps.
 #[function_component(Footer)]
 pub fn footer(props: &FooterProps) -> Html {
-    let github_link = props
+    let _github_url = props
         .github_url
         .clone()
         .unwrap_or_else(|| "https://github.com/studio2201".to_string());
 
-    let coffee_link = props
+    let _coffee_url = props
         .coffee_url
         .clone()
         .unwrap_or_else(|| "https://www.buymeacoffee.com/ubermetroid".to_string());
 
-    let aria_github = lookup(StringKey::AriaGitHubProfile, Language::English);
+    let _aria_github = lookup(StringKey::AriaGitHubProfile, Language::English);
 
     html! {
         <footer class="layout-footer">

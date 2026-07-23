@@ -11,9 +11,9 @@
 pub mod bootstrap;
 pub mod config;
 pub mod error;
+pub mod helpers;
 pub mod ip;
 pub mod version;
-pub mod helpers;
 
 #[cfg(test)]
 mod tests;
@@ -21,6 +21,6 @@ mod tests;
 pub use bootstrap::serve;
 pub use config::ServerConfig;
 pub use error::ServerError;
+pub use helpers::{LogEntry, MemoryEventLogger, is_loopback_bind, redacted_url};
 pub use ip::{get_client_ip, normalize_ip};
 pub use version::CARGO_PKG_VERSION;
-pub use helpers::{is_loopback_bind, redacted_url, LogEntry, MemoryEventLogger};

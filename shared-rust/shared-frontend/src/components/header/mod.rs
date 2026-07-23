@@ -1,9 +1,16 @@
 //! Shared header component — title bar with theme/language/print/logout controls.
 
+mod controls;
+
 use crate::i18n::Language;
-use crate::i18n::strings::{StringKey, lookup};
+use crate::i18n::strings::StringKey;
 use crate::theme::Theme;
 use yew::prelude::*;
+
+use controls::{
+    language_picker, logout_button, logout_button_disabled, print_button, print_button_disabled,
+    theme_toggle, tooltip_or_override,
+};
 
 /// Props for [`Header`].
 #[derive(Properties, PartialEq)]
@@ -56,8 +63,8 @@ pub fn header(props: &HeaderProps) -> Html {
         })
     };
 
-    let disabled = !props.is_authenticated || !props.pin_required;
-    let onclick_logout = if disabled {
+    let logout_disabled = logout_button_disabled(props.is_authenticated, props.pin_required);
+    let onclick_logout = if logout_disabled {
         Callback::from(|_| ())
     } else {
         props.on_logout.clone()
@@ -92,14 +99,18 @@ pub fn header(props: &HeaderProps) -> Html {
         }
     });
 
-    let print_disabled = props.print_disabled || !print_allowed;
+    let print_disabled = print_button_disabled(
+        props.pin_required,
+        props.is_authenticated,
+        props.print_disabled,
+    );
 
     // Parse the theme name into the `Theme` enum. Accept either the
     // kebab-case CSS names ("wrecked_ship") or any other value the
     // user stored in localStorage; unknown values fall back to default.
     let theme = Theme::from_name(&props.theme).unwrap_or_default();
 
-    // Register global keyboard listener to cycle themes on "t" keypress
+    // Register global keyboard listener to cycle themes on "t" keypress.
     {
         let toggle_theme = props.toggle_theme.clone();
         let enable_themes = props.enable_themes;
@@ -115,14 +126,13 @@ pub fn header(props: &HeaderProps) -> Html {
                     let key_event = e.dyn_ref::<web_sys::KeyboardEvent>().unwrap();
                     let key = key_event.key();
 
-                    // Skip if focus is on form input/textarea/select elements to not disrupt typing
-                    if let Some(target) = e.target() {
-                        if let Ok(elem) = target.dyn_into::<web_sys::Element>() {
-                            let tag_name = elem.tag_name().to_lowercase();
-                            if tag_name == "input" || tag_name == "textarea" || tag_name == "select"
-                            {
-                                return;
-                            }
+                    // Skip if focus is on form input/textarea/select so we don't disrupt typing.
+                    if let Some(target) = e.target()
+                        && let Ok(elem) = target.dyn_into::<web_sys::Element>()
+                    {
+                        let tag_name = elem.tag_name().to_lowercase();
+                        if tag_name == "input" || tag_name == "textarea" || tag_name == "select" {
+                            return;
                         }
                     }
 
@@ -163,112 +173,8 @@ pub fn header(props: &HeaderProps) -> Html {
                 {language_picker(props.enable_translation, props.language, on_change_lang)}
                 {theme_toggle(props.enable_themes, props.toggle_theme.clone(), theme, theme_tooltip)}
                 {print_button(props.enable_print, print_disabled, on_print, print_tooltip)}
-                {logout_button(props.pin_required, disabled, onclick_logout, logout_tooltip)}
+                {logout_button(props.pin_required, logout_disabled, onclick_logout, logout_tooltip)}
             </div>
         </header>
-    }
-}
-
-/// Returns the override tooltip if non-empty, otherwise the localized default.
-fn tooltip_or_override(override_text: &str, key: StringKey, lang: Language) -> String {
-    if !override_text.is_empty() {
-        return override_text.to_string();
-    }
-    lookup(key, lang).to_string()
-}
-
-#[allow(clippy::too_many_arguments)]
-fn language_picker(enabled: bool, current: Language, on_change: Callback<Event>) -> Html {
-    if !enabled {
-        return html! {};
-    }
-    let aria = lookup(StringKey::AriaSelectLanguage, current);
-    html! {
-        <div class="language-select-container">
-            <select
-                class="language-select"
-                id="language-select"
-                value={current.code()}
-                onchange={on_change}
-                aria-label={aria}
-            >
-                {for Language::all().iter().map(|lang| {
-                    html! {
-                        <option value={lang.code()} selected={current == *lang}>
-                            {lang.label()}
-                        </option>
-                    }
-                })}
-            </select>
-        </div>
-    }
-}
-
-fn theme_toggle(
-    enabled: bool,
-    on_click: Callback<MouseEvent>,
-    theme: Theme,
-    tooltip: String,
-) -> Html {
-    if !enabled {
-        return html! {};
-    }
-    html! {
-        <button id="theme-toggle" class="icon-button"
-                onclick={on_click}
-                aria-label="Toggle theme"
-                title={tooltip}>
-            {theme.icon_html()}
-        </button>
-    }
-}
-
-fn print_button(
-    enabled: bool,
-    disabled: bool,
-    on_click: Callback<MouseEvent>,
-    tooltip: String,
-) -> Html {
-    if !enabled {
-        return html! {};
-    }
-    html! {
-        <button id="print-button" class="icon-button"
-                onclick={on_click}
-                disabled={disabled}
-                title={tooltip}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="6 9 6 2 18 2 18 9" />
-                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
-                <rect x="6" y="14" width="12" height="8" />
-            </svg>
-        </button>
-    }
-}
-
-fn logout_button(
-    pin_required: bool,
-    disabled: bool,
-    on_click: Callback<MouseEvent>,
-    tooltip: String,
-) -> Html {
-    if !pin_required {
-        return html! {};
-    }
-    html! {
-        <button id="logout-button" class="icon-button"
-                onclick={on_click}
-                disabled={disabled}
-                title={if disabled { String::new() } else { tooltip }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2"
-                 stroke-linecap="round" stroke-linejoin="round">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                <polyline points="16 17 21 12 16 7" />
-                <line x1="21" y1="12" x2="9" y2="12" />
-            </svg>
-        </button>
     }
 }

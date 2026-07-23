@@ -1,4 +1,4 @@
-name: Run Tests
+name: CI
 
 on:
   push:
@@ -6,17 +6,72 @@ on:
   pull_request:
     branches: [master]
 
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -D warnings
+
 jobs:
-  test:
+  lint:
+    name: Lint & format
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Set up Rust
-        uses: dtolnay/rust-toolchain@stable
-      - name: Rust Cache
+        uses: dtolnay/rust-toolchain@1.96.0
+        with:
+          components: rustfmt, clippy
+      - name: Cache
         uses: swatinem/rust-cache@v2
         with:
           workspaces: shared-rust -> target
-      - name: Run Tests
-        run: cargo test
+      - name: Check formatting
         working-directory: shared-rust
+        run: cargo fmt --all -- --check
+      - name: Clippy
+        working-directory: shared-rust
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+  wasm-build:
+    name: WASM build (shared-frontend)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@1.96.0
+        with:
+          targets: wasm32-unknown-unknown
+      - name: Cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: shared-rust -> target
+      - name: Check shared-frontend for wasm32
+        working-directory: shared-rust
+        run: cargo check -p shared-frontend --target wasm32-unknown-unknown
+
+  deny:
+    name: cargo-deny
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@1.96.0
+      - name: Cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: shared-rust -> target
+      - uses: EmbarkStudios/cargo-deny-action@v2
+
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@1.96.0
+      - name: Cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: shared-rust -> target
+      - name: Run tests
+        working-directory: shared-rust
+        run: cargo test --workspace --all-features

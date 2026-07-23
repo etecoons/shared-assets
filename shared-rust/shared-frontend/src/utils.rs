@@ -48,13 +48,12 @@ pub struct EventListener {
 }
 
 impl EventListener {
-    pub fn new<F>(target: &web_sys::EventTarget, event_type: &'static str, mut callback: F) -> Self
+    pub fn new<F>(target: &web_sys::EventTarget, event_type: &'static str, callback: F) -> Self
     where
         F: FnMut(web_sys::Event) + 'static,
     {
         use wasm_bindgen::prelude::Closure;
-        let closure =
-            Closure::wrap(Box::new(move |e| callback(e)) as Box<dyn FnMut(web_sys::Event)>);
+        let closure = Closure::wrap(Box::new(callback) as Box<dyn FnMut(web_sys::Event)>);
         target
             .add_event_listener_with_callback(event_type, closure.as_ref().unchecked_ref())
             .unwrap();

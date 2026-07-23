@@ -5,6 +5,84 @@ All notable changes to `shared-assets` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.34] - 2026-07-23
+
+### Changed
+
+- **Workspace `Cargo.toml`** — added `[workspace.package]` and
+  `[workspace.dependencies]` blocks. All three sub-crates now inherit
+  `version`, `edition`, `license`, and dependencies via the workspace
+  (`.workspace = true` keys). New release bumps are a one-line change
+  in the workspace manifest.
+- **Feature flags** — every sub-crate now exposes a `[features]` table
+  (`default = []` for `shared-core` and `shared-backend`;
+  `default = ["csr"]` for `shared-frontend`). `shared-backend` adds a
+  `rate_limit` feature for the new request-budget limiter (added in
+  the next release). `shared-frontend` adds `csr`, `locale`, and
+  `notifier` features so apps can opt in granularly.
+- **`web-sys` features** — `shared-frontend` enables `Element`,
+  `KeyboardEvent`, `MouseEvent`, `HtmlInputElement`, and
+  `HtmlOptionElement` so the `Header`'s keyboard listener compiles
+  without depending on transitively-enabled features from Yew. Closes
+  the latent build-break risk flagged by the v3.0.33 audit.
+- **`shared_frontend::storage::DEFAULT_COOKIE_NAME`** is now `pub const`
+  (was a private const). Apps that need a custom cookie name can read
+  the default and shadow it locally.
+
+### Refactored
+
+- **`i18n/strings` (454 → 216/45/45/229 LoC)** — the giant `match` over
+  22 `StringKey` × 8 `Language` translations is split into three
+  private data submodules (`tooltips`, `aria`, `statuses`). The
+  public surface (`StringKey`, `all()`, `lookup()`) is unchanged.
+- **`i18n/common_strings` (299 → 141/81/108/55 LoC)** — split into
+  `verbs`, `outcomes`, and `session_ui` data submodules. Public
+  surface (`CommonString`, `lookup()`) is unchanged.
+- **`components/header` (274 → 177/180 LoC)** — the four control-rendering
+  helpers (`language_picker`, `theme_toggle`, `print_button`,
+  `logout_button`, `tooltip_or_override`) move to a `controls` submodule.
+  Pure-logic helpers `print_button_disabled` and
+  `logout_button_disabled` extracted for unit-testing.
+- **`shared_frontend::locale::parse_lang_cookie`** — pure helper
+  extracted from `get_saved_locale` so cookie parsing is testable
+  without a DOM.
+- **`shared_frontend::storage::parse_cookie_value` + `unquote`** — pure
+  helpers extracted from `get_item` so cookie/localStorage parsing is
+  testable without a DOM.
+
+### Added
+
+- **Tests** — `database::establish_connection` (sqlite + WAL + FK),
+  `helpers::{redacted_url, is_loopback_bind, MemoryEventLogger, LogEntry}`,
+  `utils::mask_api_key`, `locale::parse_lang_cookie`,
+  `storage::{parse_cookie_value, unquote}`, and the four
+  `Header::controls` disabled-state helpers all gain unit tests.
+  Test count: 12 → 109 passing tests.
+- **`tempfile = "3"` and `serde_json = "1.0"`** as
+  `[dev-dependencies]` of `shared-backend` to support the new tests.
+
+### Fixed
+
+- **Clippy `collapsible_if`** — collapsed the nested `if let` chain
+  in `Header`'s keyboard handler.
+- **Clippy `redundant_closure`** — `Closure::wrap(Box::new(callback))`
+  in `EventListener::new`.
+- **Clippy `needless_borrows_for_generic_args`** — `pragma_update`
+  calls no longer pass `&"WAL"` / `&"ON"`.
+- **Clippy `unused-mut`** — `EventListener::new` no longer marks
+  `callback` mutable.
+- **Unused `let` bindings** in `Footer` (`github_url`, `coffee_url`,
+  `aria_github`) renamed to `_`-prefixed because the original code
+  bound them without rendering them.
+
+### CI
+
+- **Workflow renamed** `Run Tests` → `CI`, split into four jobs:
+  `lint` (fmt + clippy with `-D warnings`), `wasm-build` (verifies
+  `shared-frontend` builds for `wasm32-unknown-unknown`),
+  `deny` (`cargo deny`), and `test` (cargo test). Toolchain pinned
+  to `1.96.0` to match `rust-toolchain.toml`.
+
 ## [3.0.19] - 2026-07-09
 
 ### Security

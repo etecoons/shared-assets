@@ -74,3 +74,84 @@ impl MemoryEventLogger {
         self.logs.clear();
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn redacted_url_strips_query_and_path_trailing_slash() {
+        assert_eq!(
+            redacted_url("http://server/api/v1?token=abc"),
+            "http://server/..."
+        );
+        assert_eq!(redacted_url("http://server/"), "http://server");
+        assert_eq!(redacted_url("http://server"), "http://server");
+        assert_eq!(redacted_url("http://server/path"), "http://server/...");
+    }
+
+    #[test]
+    fn redacted_url_no_scheme() {
+        assert_eq!(redacted_url("just-a-string"), "just-a-string");
+    }
+
+    #[test]
+    fn is_loopback_bind_recognises_local_hosts() {
+        assert!(is_loopback_bind("127.0.0.1:8080"));
+        assert!(is_loopback_bind("127.0.0.1"));
+        assert!(is_loopback_bind("localhost:3000"));
+        assert!(is_loopback_bind("localhost"));
+        assert!(is_loopback_bind("[::1]:8080"));
+        assert!(is_loopback_bind("::1"));
+    }
+
+    #[test]
+    fn is_loopback_bind_rejects_other_addresses() {
+        assert!(!is_loopback_bind("0.0.0.0:8080"));
+        assert!(!is_loopback_bind("192.168.1.1:80"));
+        assert!(!is_loopback_bind("example.com:443"));
+        // Malformed IPv6
+        assert!(!is_loopback_bind("[::1"));
+    }
+
+    #[test]
+    fn memory_event_logger_respects_retention() {
+        let mut logger = MemoryEventLogger::new(2);
+        logger.log("info", "first");
+        logger.log("info", "second");
+        logger.log("info", "third");
+
+        let entries = logger.entries();
+        assert_eq!(entries.len(), 2);
+        assert_eq!(entries[0].message, "third");
+        assert_eq!(entries[1].message, "second");
+    }
+
+    #[test]
+    fn memory_event_logger_clear_wipes_history() {
+        let mut logger = MemoryEventLogger::new(10);
+        logger.log("info", "x");
+        logger.log("info", "y");
+        logger.clear();
+        assert!(logger.entries().is_empty());
+    }
+
+    #[test]
+    fn memory_event_logger_retention_at_least_one() {
+        let logger = MemoryEventLogger::new(0);
+        assert_eq!(logger.retention, 1);
+    }
+
+    #[test]
+    fn log_entry_serializes_with_expected_keys() {
+        let entry = LogEntry {
+            timestamp: "12:00:00".to_string(),
+            level: "info".to_string(),
+            message: "hello".to_string(),
+        };
+        let v = serde_json::to_value(&entry).expect("json");
+        assert_eq!(v["timestamp"], "12:00:00");
+        assert_eq!(v["level"], "info");
+        assert_eq!(v["message"], "hello");
+    }
+}
